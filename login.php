@@ -22,6 +22,7 @@
           <button type="submit" class="btn btn-primary">Login</button>
  
           <p class="login-box-msg" style="padding-top:20px">New Here? <a href="registration.php">Register</a></p>
+          <p class="login-box-msg" style="padding-top:20px">Forgot Password? <a href="forgot_password.php">Change Password</a></p>
       </div>
       </div>
 </div>

@@ -25,8 +25,7 @@ extract($_POST);
 
 
 </head>
-
-
+<?php include("send_otp.php")?>
 <body>
 
 <div id="mainContainer" class="row large-centered">
@@ -46,7 +45,7 @@ extract($_POST);
 <fieldset class="page2">
 <div class="page-heading">
 <h6 class="form-heading">Authenticate Payment</h6>
-<p class="form-subheading">OTP sent to your mobile number ending with <strong>1343</strong></p>
+<p class="form-subheading">OTP sent to your email</p>
 
 
 </div>
@@ -62,7 +61,7 @@ extract($_POST);
 <label>&nbsp;</label><button class="expanded button next" onClick="ValidateForm()">Make Payment</button>
 </div>
 </div>
-<div class="text-right resendBtn requestOTP"><a class="request-link" href="javascript:void(0)">Resend OTP</a></div>
+<div class="text-right resendBtn requestOTP"><a href="">Resend OTP</a></div>
 <p>
 
 
