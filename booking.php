@@ -6,6 +6,27 @@ if(!isset($_SESSION['user']))
 	$qry2=mysqli_query($con,"select * from tbl_movie where movie_id='".$_SESSION['movie']."'");
 	$movie=mysqli_fetch_array($qry2);
 	?>
+	<style>
+.seat {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    display: inline-block;
+    text-align: center;
+    line-height: 40px;
+    background: #28a745;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.seat.selected {
+    background: #ffc107;
+}
+.seat.booked {
+    background: #dc3545;
+    cursor: not-allowed;
+}
+</style>
 <div class="content">
 	<div class="wrap">
 		<div class="content-top">
@@ -100,32 +121,59 @@ if(!isset($_SESSION['user']))
 											<?php echo date('h:i A',strtotime($ttme['start_time']))." ".$ttme['name'];?> Show
 										</td>
 									</tr>
-									<tr>
-										<td>
-											Number of Seats
-										</td>
-										<td>
-											<form  action="process_booking.php" method="post">
-												<input type="hidden" name="screen" value="<?php echo $screen['screen_id'];?>"/>
-											<input type="number" required tile="Number of Seats" max="<?php echo $screen['seats']-$avl[0];?>" min="0" name="seats" class="form-control" value="1" style="text-align:center" id="seats"/>
-											<input type="hidden" name="amount" id="hm" value="<?php echo $screen['charge'];?>"/>
-											<input type="hidden" name="date" value="<?php echo $date;?>"/>
-										</td>
-									</tr>
-									<tr>
-										<td>
-											Amount
-										</td>
-										<td id="amount" style="font-weight:bold;font-size:18px">
-											Rs <?php echo $screen['charge'];?>
-										</td>
-									</tr>
-									<tr>
-										<td colspan="2"><?php if($avl[0]==$screen['seats']){?><button type="button" class="btn btn-danger" style="width:100%">House Full</button><?php } else { ?>
-										<button class="btn btn-info" style="width:100%">Book Now</button>
-										<?php } ?>
-										</form></td>
-									</tr>
+<tr>
+<td colspan="2">
+<form action="process_booking.php" method="post">
+
+<input type="hidden" name="screen" value="<?php echo $screen['screen_id'];?>"/>
+<input type="hidden" name="amount" id="hm" value="<?php echo $screen['charge'];?>"/>
+<input type="hidden" name="date" value="<?php echo $date;?>"/>
+<input type="hidden" name="seats" id="selectedSeats">
+
+<h4>Select Seats</h4>
+
+<div id="seatContainer">
+<?php
+$rows = ['A','B','C','D','E'];
+$cols = 10;
+
+// Fetch already booked seats
+$bookedSeats = [];
+$res = mysqli_query($con,"SELECT seat_numbers FROM tbl_bookings 
+WHERE show_id='".$_SESSION['show']."' AND ticket_date='$date'");
+
+while($row = mysqli_fetch_assoc($res)){
+    $bookedSeats = array_merge($bookedSeats, explode(',', $row['seat_numbers']));
+}
+
+foreach($rows as $r){
+    for($c=1;$c<=$cols;$c++){
+        $seat = $r.$c;
+        $class = in_array($seat,$bookedSeats) ? "seat booked" : "seat";
+        echo "<div class='$class' data-seat='$seat'>$seat</div>";
+    }
+    echo "<br/>";
+}
+?>
+</div>
+
+<br>
+
+<div id="amount" style="font-weight:bold;font-size:18px">
+    Rs 0
+</div>
+
+<br>
+
+<?php if($avl[0]==$screen['seats']){ ?>
+    <button disabled type="button" class="btn btn-danger" style="width:100%">House Full</button>
+<?php } else { ?>
+    <button type="submit" id="bookBtn" class="btn btn-info" style="width:100%" disabled>Book Now</button>
+<?php } ?>
+
+</form>
+</td>
+</tr>
 						<table>
 							<tr>
 								<td></td>
@@ -139,11 +187,43 @@ if(!isset($_SESSION['user']))
 	</div>
 </div>
 <?php include('footer.php');?>
-<script type="text/javascript">
-	$('#seats').change(function(){
-		var charge=<?php echo $screen['charge'];?>;
-		amount=charge*$(this).val();
-		$('#amount').html("Rs "+amount);
-		$('#hm').val(amount);
-	});
+
+<script>
+let selected = [];
+
+$('.seat').not('.booked').click(function(){
+    let seat = $(this).data('seat');
+
+    if($(this).hasClass('selected')){
+        $(this).removeClass('selected');
+        selected = selected.filter(s => s !== seat);
+    } else {
+        $(this).addClass('selected');
+        selected.push(seat);
+    }
+
+    $('#selectedSeats').val(selected.join(','));
+
+    let charge = <?php echo $screen['charge'];?>;
+    let amount = charge * selected.length;
+
+    // Update amount
+    $('#amount').html("Rs " + amount);
+    $('#hm').val(amount);
+
+    // Enable / Disable button
+    if(selected.length > 0){
+        $('#bookBtn').prop('disabled', false);
+    } else {
+        $('#bookBtn').prop('disabled', true);
+    }
+});
+
+// Extra safety (prevent manual submit)
+$('form').submit(function(){
+    if(selected.length === 0){
+        alert("Please select at least 1 seat");
+        return false;
+    }
+});
 </script>

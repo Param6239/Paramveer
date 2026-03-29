@@ -37,6 +37,7 @@ CREATE TABLE `tbl_bookings` (
   `no_seats` int(3) NOT NULL COMMENT 'number of seats',
   `amount` int(5) NOT NULL,
   `ticket_date` date NOT NULL,
+  `seat_numbers` VARCHAR(255) NOT NULL,
   `date` date NOT NULL,
   `status` int(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
