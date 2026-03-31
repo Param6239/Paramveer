@@ -3,6 +3,11 @@
     $user = "root";                     
     $pass = "";                                  
     $db = "movietheatredb";
-    $port = 3306;
-     $con = mysqli_connect($host, $user, $pass, $db, $port)or die(mysqli_connect_error());
+    $con = mysqli_connect($host, $user, $pass, $db);
+
+	if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+    //$port = 3306;
+     //$con = mysqli_connect($host, $user, $pass, $db, $port)or die(mysqli_connect_error());
 ?>

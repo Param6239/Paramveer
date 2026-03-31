@@ -1,8 +1,9 @@
-<html>
-<body>
 <?php
 include('header.php');
 ?>
+<html>
+<body>
+
 
 <div class="content">
 	<div class="wrap">
